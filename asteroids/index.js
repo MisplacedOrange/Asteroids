@@ -43,13 +43,12 @@ class Player {
     }
 }
 
-player.draw
-
 const player = new Player({
     position:{x: canvas.width / 2, y: canvas.height / 2},
     velocity: { x: 0, y: 0},
 })
 
+player.draw
 
 const keys = {
     w: {
