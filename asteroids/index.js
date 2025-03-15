@@ -242,85 +242,104 @@ function isPointOnLineSegment(x, y, start, end) {
   )
 }
 
-function animate() {
-  const animationId = window.requestAnimationFrame(animate)
-  context.fillStyle = 'black'
-  context.fillRect(0, 0, canvas.width, canvas.height)
+let gameover = false
 
-  player.update()
+function displayGameOver() {
+  context.fillStyle = 'red';
+  context.font = '50px Arial';
+  context.textAlign = 'center';
+  context.fillText('GAME OVER, YOU LOSE', canvas.width / 2, canvas.height / 2);
+}
+
+function animate() {
+  if (gameover) {
+    displayGameOver();
+    return; 
+  }
+
+  const animationId = window.requestAnimationFrame(animate);
+  context.fillStyle = 'black';
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  player.update();
 
   for (let i = projectiles.length - 1; i >= 0; i--) {
-    const projectile = projectiles[i]
-    projectile.update()
+    const projectile = projectiles[i];
+    projectile.update();
 
-    // garbage collection for projectiles
+    // Garbage collection for projectiles
     if (
       projectile.position.x + projectile.radius < 0 ||
       projectile.position.x - projectile.radius > canvas.width ||
       projectile.position.y - projectile.radius > canvas.height ||
       projectile.position.y + projectile.radius < 0
     ) {
-      projectiles.splice(i, 1)
+      projectiles.splice(i, 1);
     }
   }
 
-  // asteroid management
+  // Asteroid management
   for (let i = asteroids.length - 1; i >= 0; i--) {
-    const asteroid = asteroids[i]
-    asteroid.update()
+    const asteroid = asteroids[i];
+    asteroid.update();
 
     if (circleTriangleCollision(asteroid, player.getVertices())) {
-      console.log('GAME OVER')
-      window.cancelAnimationFrame(animationId)
-      clearInterval(intervalId)
+      console.log('GAME OVER');
+      gameover = true; 
+      window.cancelAnimationFrame(animationId);
+      clearInterval(intervalId);
+      displayGameOver();
+      return; 
     }
 
-    // garbage collection for projectiles
+    // Garbage collection for asteroids
     if (
       asteroid.position.x + asteroid.radius < 0 ||
       asteroid.position.x - asteroid.radius > canvas.width ||
       asteroid.position.y - asteroid.radius > canvas.height ||
       asteroid.position.y + asteroid.radius < 0
     ) {
-      asteroids.splice(i, 1)
+      asteroids.splice(i, 1);
     }
 
-    // projectiles
+    // Projectiles
     for (let j = projectiles.length - 1; j >= 0; j--) {
-      const projectile = projectiles[j]
+      const projectile = projectiles[j];
 
       if (circleCollision(asteroid, projectile)) {
-        asteroids.splice(i, 1)
-        projectiles.splice(j, 1)
+        asteroids.splice(i, 1);
+        projectiles.splice(j, 1);
       }
     }
   }
 
   if (keys.w.pressed) {
-    player.velocity.x = Math.cos(player.rotation) * SPEED
-    player.velocity.y = Math.sin(player.rotation) * SPEED
-  } else if (!keys.w.pressed) {
-    player.velocity.x *= FRICTION
-    player.velocity.y *= FRICTION
+    player.velocity.x = Math.cos(player.rotation) * SPEED;
+    player.velocity.y = Math.sin(player.rotation) * SPEED;
+  } else {
+    player.velocity.x *= FRICTION;
+    player.velocity.y *= FRICTION;
   }
 
-  if (keys.d.pressed) player.rotation += ROTATIONAL_SPEED
-  else if (keys.a.pressed) player.rotation -= ROTATIONAL_SPEED
+  if (keys.d.pressed) player.rotation += ROTATIONAL_SPEED;
+  else if (keys.a.pressed) player.rotation -= ROTATIONAL_SPEED;
 }
 
-animate()
+animate();
 
 window.addEventListener('keydown', (event) => {
+  if (gameover) return; // Prevent input after game over
+
   switch (event.code) {
     case 'KeyW':
-      keys.w.pressed = true
-      break
+      keys.w.pressed = true;
+      break;
     case 'KeyA':
-      keys.a.pressed = true
-      break
+      keys.a.pressed = true;
+      break;
     case 'KeyD':
-      keys.d.pressed = true
-      break
+      keys.d.pressed = true;
+      break;
     case 'Space':
       projectiles.push(
         new Projectile({
@@ -333,22 +352,23 @@ window.addEventListener('keydown', (event) => {
             y: Math.sin(player.rotation) * PROJECTILE_SPEED,
           },
         })
-      )
-
-      break
+      );
+      break;
   }
-})
+});
 
 window.addEventListener('keyup', (event) => {
+  if (gameover) return; // Prevent input after game over
+
   switch (event.code) {
     case 'KeyW':
-      keys.w.pressed = false
-      break
+      keys.w.pressed = false;
+      break;
     case 'KeyA':
-      keys.a.pressed = false
-      break
+      keys.a.pressed = false;
+      break;
     case 'KeyD':
-      keys.d.pressed = false
-      break
+      keys.d.pressed = false;
+      break;
   }
-})
+});
