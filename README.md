@@ -1,3 +1,3 @@
 Credits: NET NINJA
 
-Pure javascript asteroids game.
+Asteroids game built purely with JavaScript.
