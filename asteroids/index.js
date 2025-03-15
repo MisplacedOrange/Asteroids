@@ -20,7 +20,7 @@ class Player {
 
     context.beginPath()
     context.arc(this.position.x, this.position.y, 5, 0, Math.PI * 2, false)
-    context.fillStyle = 'red'
+    context.fillStyle = 'white'
     context.fill()
     context.closePath()
 
